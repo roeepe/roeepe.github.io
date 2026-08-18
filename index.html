@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Yeshiva Shorts Uploader</title>
-<meta name="description" content="A personal command-line tool that uploads pre-rendered vertical video clips to a single YouTube channel.">
+<meta name="description" content="Yeshiva Shorts Uploader is a personal command-line tool that uploads pre-rendered vertical video clips to their operator's own YouTube channel.">
 <link rel="stylesheet" href="style.css">
 <script src="contact.js" defer></script>
 </head>
@@ -12,56 +12,83 @@
 <div class="wrap">
 <header>
   <h1>Yeshiva Shorts Uploader</h1>
-  <p class="lede">A personal command-line tool for publishing short-form Torah lesson clips to YouTube.</p>
+  <p class="lede">
+    A personal command-line application that uploads pre-rendered vertical video
+    clips to its operator's own YouTube channel.
+  </p>
   <nav>
     <a href="privacy.html">Privacy Policy</a>
     <a href="terms.html">Terms of Service</a>
   </nav>
 </header>
 
-<h2>What this application does</h2>
-<p>
-  Yeshiva Shorts Uploader is a single-user command-line program, run locally on the
-  operator's own computer. It takes vertical video clips that were already rendered
-  offline from recorded Torah lessons &mdash; each with its own title, description and
-  tags &mdash; and uploads them to one YouTube channel that the operator owns or is
-  authorized to manage.
-</p>
-<p>
-  The application exists to remove repetitive manual work. Everything it uploads was
-  produced deliberately by a human beforehand; the tool only handles the transfer.
-</p>
-
-<h2>Who uses it</h2>
-<p>
-  One person. It is not distributed, sold, or offered as a service, and it has no
-  user accounts, no website interface, and no server component. There is no sign-up,
-  because there is nobody to sign up.
-</p>
-
-<h2>How it uses Google APIs</h2>
-<p>
-  The application uses the YouTube Data API v3 and requests exactly one OAuth scope:
-</p>
-<ul>
-  <li><code>https://www.googleapis.com/auth/youtube.upload</code> &mdash; permission to upload a video file to the authorized channel.</li>
-</ul>
-<p>
-  This scope allows uploading only. The application does not read the channel's
-  analytics, does not read or write comments, does not manage subscriptions, and
-  does not modify or delete existing videos. Uploaded videos are created with
-  private visibility; publishing them is a separate, manual decision made afterwards
-  in YouTube Studio.
-</p>
-
 <div class="box">
   <p>
-    <strong>Revoking access.</strong> Authorization can be withdrawn at any time from
-    <a href="https://myaccount.google.com/permissions">Google Account &rarr; Third-party apps &amp; services</a>,
-    which immediately and permanently ends the application's ability to upload.
-    Deleting the local credentials file has the same practical effect on this machine.
+    <strong>This is the official home page of the application named
+    &ldquo;Yeshiva Shorts Uploader&rdquo;</strong> &mdash; the same name shown on its
+    Google OAuth consent screen. The application is developed and operated by
+    Roee Pearl, who also owns and controls this website.
   </p>
 </div>
+
+<h2>The purpose of this application</h2>
+<p>
+  Recorded Torah lessons are long. Turning one into short vertical clips for
+  YouTube means cutting the clip, burning in Hebrew subtitles, and writing a
+  title, description and tags for each one &mdash; work that is done deliberately,
+  offline, before this application is involved at all.
+</p>
+<p>
+  What remains after that is pure repetition: opening YouTube Studio once per
+  clip, selecting a file, and re-typing metadata that already exists in a local
+  file. <strong>Yeshiva Shorts Uploader exists to do exactly that last step and
+  nothing else.</strong> It reads clips and their metadata from the operator's own
+  disk and submits them to the operator's own YouTube channel through the YouTube
+  Data API.
+</p>
+<p>
+  Every video it uploads is created with <strong>private</strong> visibility.
+  Nothing becomes publicly visible as a result of running this application; the
+  decision to publish is made separately and manually in YouTube Studio afterwards.
+</p>
+
+<h2>Why it needs access to a Google account</h2>
+<p>
+  Uploading a video to a YouTube channel requires the channel owner's
+  authorization. The application therefore requests a single OAuth scope, and no
+  others:
+</p>
+<ul>
+  <li>
+    <code>https://www.googleapis.com/auth/youtube.upload</code> &mdash; required to
+    call <code>videos.insert</code>, which is the only API method the application
+    uses. Without this scope the application cannot perform its one function.
+  </li>
+</ul>
+<p>
+  This scope grants upload permission only. The application cannot read channel
+  analytics, cannot read or post comments, cannot see subscriber information, and
+  cannot modify or delete videos already on the channel. It requests no access to
+  Gmail, Drive, Contacts, Calendar, or any other Google service. How the resulting
+  credentials are stored and how to revoke them is described in the
+  <a href="privacy.html">Privacy Policy</a>.
+</p>
+
+<h2>How it works</h2>
+<ul>
+  <li>It runs as a command-line program on the operator's own Windows computer.</li>
+  <li>It has no website interface, no server, no database, and no user accounts.</li>
+  <li>It is not distributed, published, sold, or offered to anyone else. It has one user: its operator.</li>
+  <li>Authorization is granted once, through Google's own consent screen, by the account that controls the target channel.</li>
+</ul>
+
+<h2>Who operates it</h2>
+<p>
+  Roee Pearl, an individual developer. This site
+  (<code>roeepe.github.io</code>) is published from a repository under the same
+  operator's GitHub account and serves as the application's official home page,
+  privacy policy, and terms of service.
+</p>
 
 <h2>Contact</h2>
 <p class="meta">
