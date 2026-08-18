@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Privacy Policy &middot; Yeshiva Shorts Uploader</title>
+<meta name="description" content="Privacy policy for Yeshiva Shorts Uploader: what data is accessed, where it is stored, and how access is revoked.">
+<link rel="stylesheet" href="style.css">
+<script src="contact.js" defer></script>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>Privacy Policy</h1>
+  <p class="lede">Yeshiva Shorts Uploader</p>
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="terms.html">Terms of Service</a>
+    <span class="meta">Effective 18 August 2026</span>
+  </nav>
+</header>
+
+<h2>Summary</h2>
+<p>
+  Yeshiva Shorts Uploader is a single-user command-line program that runs on its
+  operator's own computer. It collects no personal information from anyone, has no
+  server, no database, and no analytics. The only credential it handles is the
+  operator's own Google authorization token, which never leaves the machine it was
+  created on.
+</p>
+
+<h2>What data the application accesses</h2>
+<p>
+  When authorization is granted, Google issues the application an access token and a
+  refresh token scoped to a single permission:
+  <code>https://www.googleapis.com/auth/youtube.upload</code>. Alongside those tokens,
+  Google returns the email address of the account that granted authorization, so the
+  application can display which account is connected.
+</p>
+<p>The application does not request and cannot obtain:</p>
+<ul>
+  <li>Channel analytics, watch history, or viewer data</li>
+  <li>Comments, messages, or subscriber lists</li>
+  <li>The ability to read, modify, or delete videos already on the channel</li>
+  <li>Contacts, Drive files, calendar data, or any other Google service</li>
+</ul>
+
+<h2>Where data is stored</h2>
+<p>
+  Tokens are written to a single file on the operator's local disk
+  (<code>.youtube_token.json</code>) and are read from there on each run. The video
+  files being uploaded are likewise local files, chosen explicitly by the operator.
+</p>
+<p>
+  No data is transmitted anywhere except directly to Google's own API endpoints in
+  order to perform the upload the operator requested. There is no third-party
+  analytics, no telemetry, no error-reporting service, and no advertising network
+  involved at any point.
+</p>
+
+<h2>How data is used</h2>
+<p>
+  The token is used for one purpose: authenticating upload requests to the YouTube
+  Data API on behalf of the account that granted it. It is never used for any other
+  purpose, never shared with any third party, and never sold. The application's use
+  and transfer of information received from Google APIs adheres to the
+  <a href="https://developers.google.com/terms/api-services-user-data-policy">Google API Services User Data Policy</a>,
+  including its Limited Use requirements.
+</p>
+
+<h2>Retention and deletion</h2>
+<p>
+  The token file persists locally until it is deleted or the authorization is revoked.
+  Because there is no server, there is nothing to delete remotely and no backup copy
+  held anywhere.
+</p>
+<div class="box">
+  <p><strong>To revoke access, either or both of:</strong></p>
+  <ul>
+    <li>Visit <a href="https://myaccount.google.com/permissions">Google Account &rarr; Third-party apps &amp; services</a>, select this application, and choose <em>Remove access</em>. The stored token stops working immediately.</li>
+    <li>Delete the local <code>.youtube_token.json</code> file, which removes the credential from the machine.</li>
+  </ul>
+</div>
+
+<h2>Children</h2>
+<p>
+  The application is a personal developer tool with a single adult operator. It is not
+  directed to children and collects no information from anyone.
+</p>
+
+<h2>Changes to this policy</h2>
+<p>
+  If the application's behaviour changes in a way that affects this policy &mdash; for
+  example if it ever requested an additional OAuth scope &mdash; this page will be
+  updated and the effective date above revised.
+</p>
+
+<h2>Contact</h2>
+<p class="meta">
+  <span data-contact>[contact address]</span>
+</p>
+
+<footer>
+  Yeshiva Shorts Uploader &middot; Operated by Roee Pearl &middot; Effective 18 August 2026
+</footer>
+</div>
+</body>
+</html>

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Yeshiva Shorts Uploader</title>
+<meta name="description" content="A personal command-line tool that uploads pre-rendered vertical video clips to a single YouTube channel.">
+<link rel="stylesheet" href="style.css">
+<script src="contact.js" defer></script>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>Yeshiva Shorts Uploader</h1>
+  <p class="lede">A personal command-line tool for publishing short-form Torah lesson clips to YouTube.</p>
+  <nav>
+    <a href="privacy.html">Privacy Policy</a>
+    <a href="terms.html">Terms of Service</a>
+  </nav>
+</header>
+
+<h2>What this application does</h2>
+<p>
+  Yeshiva Shorts Uploader is a single-user command-line program, run locally on the
+  operator's own computer. It takes vertical video clips that were already rendered
+  offline from recorded Torah lessons &mdash; each with its own title, description and
+  tags &mdash; and uploads them to one YouTube channel that the operator owns or is
+  authorized to manage.
+</p>
+<p>
+  The application exists to remove repetitive manual work. Everything it uploads was
+  produced deliberately by a human beforehand; the tool only handles the transfer.
+</p>
+
+<h2>Who uses it</h2>
+<p>
+  One person. It is not distributed, sold, or offered as a service, and it has no
+  user accounts, no website interface, and no server component. There is no sign-up,
+  because there is nobody to sign up.
+</p>
+
+<h2>How it uses Google APIs</h2>
+<p>
+  The application uses the YouTube Data API v3 and requests exactly one OAuth scope:
+</p>
+<ul>
+  <li><code>https://www.googleapis.com/auth/youtube.upload</code> &mdash; permission to upload a video file to the authorized channel.</li>
+</ul>
+<p>
+  This scope allows uploading only. The application does not read the channel's
+  analytics, does not read or write comments, does not manage subscriptions, and
+  does not modify or delete existing videos. Uploaded videos are created with
+  private visibility; publishing them is a separate, manual decision made afterwards
+  in YouTube Studio.
+</p>
+
+<div class="box">
+  <p>
+    <strong>Revoking access.</strong> Authorization can be withdrawn at any time from
+    <a href="https://myaccount.google.com/permissions">Google Account &rarr; Third-party apps &amp; services</a>,
+    which immediately and permanently ends the application's ability to upload.
+    Deleting the local credentials file has the same practical effect on this machine.
+  </p>
+</div>
+
+<h2>Contact</h2>
+<p class="meta">
+  Questions about this application, its privacy policy, or its terms:
+  <span data-contact>[contact address]</span>
+</p>
+
+<footer>
+  Yeshiva Shorts Uploader &middot; Operated by Roee Pearl &middot; Last updated 18 August 2026
+</footer>
+</div>
+</body>
+</html>
