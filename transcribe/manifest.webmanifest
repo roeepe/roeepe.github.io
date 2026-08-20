@@ -1,0 +1,21 @@
+{
+  "name": "תמלול ivrit-ai",
+  "short_name": "תמלול",
+  "description": "תמלול הקלטות בעברית עם המודל של ivrit-ai — על המכשיר, ב-Colab או על שרת git.",
+  "lang": "he",
+  "dir": "rtl",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#161513",
+  "theme_color": "#161513",
+  "categories": ["productivity", "utilities"],
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "icon-maskable.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "הקלטה חדשה", "url": "./?action=record" }
+  ]
+}
