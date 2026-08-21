@@ -165,9 +165,10 @@ Java_io_github_roeepe_ivrit_engine_WhisperNative_transcribe(
     params.no_timestamps    = false;
     params.single_segment   = false;
     params.suppress_blank   = true;
-    // A wrong guess early on otherwise conditions everything after it, which on
-    // Hebrew audio tends to spiral rather than recover.
-    params.condition_on_previous_text = false;
+    // whisper.cpp's name for "do not feed the previous transcript back in as a
+    // prompt". A wrong guess early on otherwise conditions everything after it,
+    // which on Hebrew audio tends to spiral rather than recover.
+    params.no_context = true;
     if (!prompt.empty()) params.initial_prompt = prompt.c_str();
     if (beamSize > 1) params.beam_search.beam_size = beamSize;
 
