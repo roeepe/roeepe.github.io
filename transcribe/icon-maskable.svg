@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="תמלול">
+  <rect width="512" height="512" fill="#161513"/>
+  <g fill="none" stroke="#d1a75c" stroke-width="22" stroke-linecap="round" transform="translate(0,4) scale(0.82) translate(56,56)">
+    <path d="M256 116v170"/>
+    <path d="M196 168v66M316 168v66"/>
+    <path d="M136 200v20M376 200v20"/>
+    <path d="M164 300a92 92 0 0 0 184 0"/>
+    <path d="M256 392v44"/>
+  </g>
+</svg>

@@ -1,0 +1,144 @@
+name: transcribe
+
+# Transcribes a recording that already sits in Google Drive, on GitHub's own
+# runners, and writes the result back into a Drive file the phone is polling.
+#
+# One-time setup (see transcribe/README.md):
+#   1. Create a Google Cloud service account, download its JSON key.
+#   2. Repo → Settings → Secrets → Actions → new secret GDRIVE_SERVICE_ACCOUNT_JSON
+#      with the whole JSON as its value.
+#   3. Share the Drive folder "ivrit-transcribe" with the service account's
+#      client_email as Editor. Nothing else in the Drive is reachable.
+#
+# The runner has no GPU, so this is the slow-but-unattended route: roughly
+# realtime for the turbo model at int8 on 4 vCPUs. The app's estimator says so
+# before you pick it.
+
+on:
+  workflow_dispatch:
+    inputs:
+      audio_file_id:
+        description: "Google Drive file id of the recording"
+        required: true
+      result_file_id:
+        description: "Drive file id of the (pre-created) result JSON to write into"
+        required: true
+      model:
+        description: "ivrit-ai model in CTranslate2 format"
+        required: false
+        default: "ivrit-ai/whisper-large-v3-turbo-ct2"
+      language:
+        description: "Language code"
+        required: false
+        default: "he"
+      beam_size:
+        description: "Beam size (1 is faster, 5 is more accurate)"
+        required: false
+        default: "5"
+
+concurrency:
+  group: transcribe-${{ inputs.audio_file_id }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  transcribe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350          # just under the 6 h hard limit, so cleanup still runs
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Cache the model weights between runs
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ivrit-models
+          key: ct2-${{ inputs.model }}-v1
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r tools/requirements-colab.txt
+
+      # Ids travel as env vars rather than being interpolated into the shell, so
+      # nothing user-supplied is ever evaluated by bash.
+      - name: Check the service account can reach the files
+        env:
+          GDRIVE_SERVICE_ACCOUNT_JSON: ${{ secrets.GDRIVE_SERVICE_ACCOUNT_JSON }}
+          AUDIO_ID: ${{ inputs.audio_file_id }}
+          RESULT_ID: ${{ inputs.result_file_id }}
+        run: |
+          if [ -z "$GDRIVE_SERVICE_ACCOUNT_JSON" ]; then
+            echo "::error::Missing secret GDRIVE_SERVICE_ACCOUNT_JSON — see transcribe/README.md"
+            exit 1
+          fi
+          python - <<'PY'
+          import json, os, sys
+          sys.path.insert(0, "tools")
+          from ivrit_transcribe import _drive_service
+          svc = _drive_service(None)
+          email = json.loads(os.environ["GDRIVE_SERVICE_ACCOUNT_JSON"]).get("client_email")
+          for label, fid in (("audio", os.environ["AUDIO_ID"]), ("result", os.environ["RESULT_ID"])):
+              try:
+                  meta = svc.files().get(fileId=fid, fields="id,name,size").execute()
+                  print(f"{label}: {meta.get('name')} ({meta.get('size','?')} bytes)")
+              except Exception as exc:
+                  print(f"::error::{label} file {fid} is not reachable by {email}: {exc}")
+                  raise SystemExit(1)
+          PY
+
+      - name: Transcribe
+        env:
+          GDRIVE_SERVICE_ACCOUNT_JSON: ${{ secrets.GDRIVE_SERVICE_ACCOUNT_JSON }}
+          AUDIO_ID: ${{ inputs.audio_file_id }}
+          RESULT_ID: ${{ inputs.result_file_id }}
+          MODEL: ${{ inputs.model }}
+          LANGUAGE: ${{ inputs.language }}
+          BEAM: ${{ inputs.beam_size }}
+        run: |
+          python tools/ivrit_transcribe.py \
+            --input "drive:${AUDIO_ID}" \
+            --output "drive:${RESULT_ID}" \
+            --model "${MODEL}" \
+            --language "${LANGUAGE}" \
+            --beam-size "${BEAM}" \
+            --device cpu \
+            --compute-type int8 \
+            --workdir ~/.cache/ivrit-models \
+            --text-output transcript.txt \
+            --verbose
+
+      - name: Keep a copy as a build artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: transcript
+          path: |
+            transcript.txt
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Report failure into the Drive result file
+        if: failure()
+        env:
+          GDRIVE_SERVICE_ACCOUNT_JSON: ${{ secrets.GDRIVE_SERVICE_ACCOUNT_JSON }}
+          RESULT_ID: ${{ inputs.result_file_id }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          python - <<'PY'
+          import json, os, sys
+          sys.path.insert(0, "tools")
+          from ivrit_transcribe import _drive_service, drive_update_text
+          payload = {"status": "error",
+                     "error": "ה-job ב-GitHub Actions נכשל",
+                     "runUrl": os.environ["RUN_URL"]}
+          drive_update_text(_drive_service(None), os.environ["RESULT_ID"],
+                            json.dumps(payload, ensure_ascii=False))
+          print("reported to Drive")
+          PY

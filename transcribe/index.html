@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>תמלול ivrit-ai</title>
+<meta name="description" content="תמלול הקלטות בעברית עם המודל של ivrit-ai — על המכשיר, ב-Colab או על שרת git — עם הערכת זמן, סיכון ועומס לפני ההרצה.">
+<meta name="theme-color" content="#161513" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#fbfbfa" media="(prefers-color-scheme: light)">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon.svg">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="topbar">
+  <h1>תמלול <span class="brand">ivrit-ai</span></h1>
+  <button id="btn-settings" class="icon-btn" aria-label="הגדרות" title="הגדרות">⚙︎</button>
+</header>
+
+<main>
+
+<!-- ── 1. הקלטה ────────────────────────────────────────────────────────── -->
+<section class="card" id="sec-input">
+  <h2>הקלטה</h2>
+  <div class="pickers">
+    <label class="btn primary" for="file">
+      <input type="file" id="file" accept="audio/*,video/mp4,video/webm" hidden>
+      בחירת קובץ
+    </label>
+    <button class="btn" id="btn-record">הקלטה חדשה</button>
+  </div>
+  <p class="hint" id="record-hint" hidden>מקליט… <span id="record-time">0:00</span></p>
+
+  <div id="file-card" hidden>
+    <dl class="facts">
+      <div><dt>קובץ</dt><dd id="f-name">—</dd></div>
+      <div><dt>אורך</dt><dd id="f-duration">—</dd></div>
+      <div><dt>גודל</dt><dd id="f-size">—</dd></div>
+      <div><dt>פורמט</dt><dd id="f-format">—</dd></div>
+    </dl>
+    <p class="hint" id="f-note"></p>
+  </div>
+</section>
+
+<!-- ── 2. הערכת משאבים ─────────────────────────────────────────────────── -->
+<section class="card" id="sec-estimate" hidden>
+  <h2>מה זה יעלה לכם</h2>
+  <p class="hint" id="est-basis">—</p>
+
+  <div id="routes" class="routes"></div>
+
+  <details class="foldout" id="device-details">
+    <summary>מה נמדד במכשיר הזה</summary>
+    <dl class="facts" id="device-facts"></dl>
+    <button class="btn small" id="btn-rebench">מדידה מחדש</button>
+  </details>
+</section>
+
+<!-- ── 3. ריצה ─────────────────────────────────────────────────────────── -->
+<section class="card" id="sec-run" hidden>
+  <h2 id="run-title">מריץ</h2>
+  <div class="bar"><div class="bar-fill" id="run-bar"></div></div>
+  <p class="run-line"><span id="run-stage">—</span><span id="run-pct"></span></p>
+
+  <dl class="facts live" id="run-live"></dl>
+
+  <div class="pickers">
+    <button class="btn danger" id="btn-cancel">עצירה</button>
+    <a class="btn" id="btn-external" hidden target="_blank" rel="noopener">פתיחה ב-Colab</a>
+  </div>
+
+  <details class="foldout" id="run-log-fold">
+    <summary>יומן</summary>
+    <pre id="run-log" class="log"></pre>
+  </details>
+</section>
+
+<!-- ── 4. תוצאה ────────────────────────────────────────────────────────── -->
+<section class="card" id="sec-result" hidden>
+  <h2>התמלול</h2>
+  <p class="hint" id="result-meta"></p>
+  <textarea id="result-text" class="transcript" spellcheck="false" dir="rtl"></textarea>
+  <div class="pickers" id="export-buttons"></div>
+  <p class="hint" id="accuracy-note"></p>
+</section>
+
+</main>
+
+<!-- ── הגדרות ──────────────────────────────────────────────────────────── -->
+<dialog id="settings">
+  <form method="dialog" class="settings-form">
+    <h2>הגדרות</h2>
+
+    <fieldset>
+      <legend>מודל על המכשיר</legend>
+      <label>מאגר Hugging Face
+        <input type="text" id="s-model" spellcheck="false" inputmode="url">
+      </label>
+      <select id="s-model-preset"></select>
+      <label>דיוק המשקולות
+        <select id="s-dtype"></select>
+      </label>
+      <p class="hint" id="s-model-note">—</p>
+    </fieldset>
+
+    <fieldset>
+      <legend>מודל בענן (Colab / Actions)</legend>
+      <label>מודל CTranslate2
+        <select id="s-ct2"></select>
+      </label>
+    </fieldset>
+
+    <fieldset>
+      <legend>Google Drive</legend>
+      <label>OAuth Client ID
+        <input type="text" id="s-google-client" spellcheck="false" placeholder="…apps.googleusercontent.com">
+      </label>
+      <p class="hint">נדרש למסלולי Colab ו-Actions. ההרשאה היחידה שמבוקשת היא <code>drive.file</code> — גישה רק לקבצים שהאפליקציה עצמה יצרה.</p>
+    </fieldset>
+
+    <fieldset>
+      <legend>GitHub Actions</legend>
+      <label>מאגר <input type="text" id="s-gh-repo" spellcheck="false" placeholder="owner/repo"></label>
+      <label>ענף <input type="text" id="s-gh-ref" spellcheck="false" placeholder="main"></label>
+      <label>Fine-grained token <input type="password" id="s-gh-token" spellcheck="false" autocomplete="off"></label>
+      <label>כתובת ה-service account <input type="text" id="s-gh-sa" spellcheck="false" placeholder="…iam.gserviceaccount.com"></label>
+      <p class="hint">הטוקן נשמר רק במכשיר הזה (localStorage). מספיקה הרשאת <code>Actions: read&nbsp;and&nbsp;write</code> על המאגר הזה בלבד.</p>
+      <button class="btn small" id="btn-gh-check" type="button">בדיקת חיבור</button>
+      <p class="hint" id="gh-check-note"></p>
+    </fieldset>
+
+    <fieldset>
+      <legend>ריצה</legend>
+      <label>אורך מקטע (שניות)
+        <input type="number" id="s-segment" min="60" max="1800" step="30">
+      </label>
+      <label class="row"><input type="checkbox" id="s-wakelock"> להשאיר את המסך דולק בזמן ריצה מקומית</label>
+      <label class="row"><input type="checkbox" id="s-resume"> להמשיך ריצה שנקטעה מאותה נקודה</label>
+    </fieldset>
+
+    <fieldset>
+      <legend>כיול ואחסון</legend>
+      <p class="hint" id="s-calib">—</p>
+      <div class="pickers">
+        <button class="btn small" id="btn-reset-calib" type="button">איפוס כיול</button>
+        <button class="btn small" id="btn-clear-model" type="button">מחיקת המודל מהמטמון</button>
+      </div>
+    </fieldset>
+
+    <div class="pickers"><button class="btn primary" value="close">סגירה</button></div>
+  </form>
+</dialog>
+
+<footer>
+  ‏<a href="../">roeepe.github.io</a> · המודל:
+  <a href="https://huggingface.co/ivrit-ai" target="_blank" rel="noopener">ivrit-ai</a> ·
+  הכול רץ בדפדפן; הקלטות נשלחות החוצה רק אם בוחרים במסלול ענן.
+</footer>
+
+<script type="module" src="js/main.js"></script>
+</body>
+</html>
